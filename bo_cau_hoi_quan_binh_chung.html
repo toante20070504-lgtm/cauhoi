@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ôn tập: Hiểu biết chung về các quân, binh chủng</title>
+<style>
+:root{--bg:#f3f6f2;--card:#fff;--ink:#1e2a22;--muted:#68766c;--green:#245b3d;--green2:#347650;--line:#dce5dc;--soft:#eaf2eb;--red:#a33d36}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+header{background:linear-gradient(135deg,#173d2a,#2e7049);color:#fff;padding:34px 18px 28px}
+.wrap{max-width:900px;margin:auto}
+.eyebrow{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;opacity:.82}
+h1{margin:8px 0 10px;font-size:clamp(1.65rem,4vw,2.5rem);line-height:1.2}
+header p{margin:0;max-width:720px;color:#e7f1e9}
+main{padding:24px 14px 52px}
+.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+.pill{background:var(--soft);color:var(--green);padding:8px 12px;border-radius:999px;font-weight:700;font-size:.9rem}
+.progress{height:8px;background:#dce5dc;border-radius:99px;overflow:hidden;margin:0 0 20px}
+.progress span{display:block;height:100%;width:0;background:var(--green2);transition:width .2s}
+.question{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 4px 16px #163d2910}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{flex:0 0 34px;height:34px;display:grid;place-items:center;background:var(--soft);color:var(--green);border-radius:10px;font-weight:800}
+.qtitle{font-weight:700;margin:3px 0 14px}
+.options{display:grid;gap:9px}
+.option{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:11px 12px;cursor:pointer;transition:.15s}
+.option:hover{border-color:#79a78a;background:#f8fbf8}
+.option input{margin-top:5px;accent-color:var(--green);flex-shrink:0}
+.option:has(input:checked){border-color:var(--green2);background:var(--soft)}
+.option.correct{border-color:#3b8a5a;background:#edf8ef}
+.option.wrong{border-color:#c56a64;background:#fff1f0}
+.explain{display:none;margin-top:12px;padding:10px 12px;border-radius:9px;background:#f4f6f4;color:#405047;font-size:.94rem}
+.question.review .explain{display:block}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+button{border:0;border-radius:10px;padding:12px 18px;font-size:1rem;font-weight:700;cursor:pointer}
+.primary{background:var(--green);color:#fff}
+.primary:hover{background:#19482f}
+.secondary{background:#e5ebe5;color:#26392c}
+button:disabled{opacity:.5;cursor:not-allowed}
+#result{display:none;background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:20px}
+#score{font-size:2rem;color:var(--green);font-weight:800}
+.small{font-size:.9rem;color:var(--muted)}
+footer{text-align:center;padding:0 14px 26px;color:var(--muted);font-size:.85rem}
+@media(max-width:560px){header{padding-top:26px}.question{padding:16px}.toolbar{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Bộ câu hỏi ôn tập · 10 câu trắc nghiệm</div>
+    <h1>Hiểu biết chung về các quân, binh chủng</h1>
+    <p>Ôn tập kiến thức về lịch sử, chức năng, cơ cấu tổ chức Quân đội nhân dân Việt Nam và nhiệm vụ của một số quân chủng, binh chủng. Chọn một đáp án cho mỗi câu rồi nhấn “Nộp bài”.</p>
+  </div>
+</header>
+<main class="wrap">
+  <div class="toolbar">
+    <span class="pill">10 câu · Mỗi câu 1 điểm</span>
+    <span id="answered" class="small">Đã trả lời 0/10 câu</span>
+  </div>
+  <div class="progress" aria-label="Tiến độ trả lời"><span id="bar"></span></div>
+  <form id="quiz"></form>
+  <div class="actions">
+    <button class="primary" id="submit" type="button">Nộp bài và xem kết quả</button>
+    <button class="secondary" id="reset" type="button">Làm lại</button>
+  </div>
+  <section id="result" aria-live="polite">
+    <div class="small">KẾT QUẢ CỦA BẠN</div>
+    <div id="score"></div>
+    <p id="message"></p>
+    <p class="small">Các đáp án đúng và phần giải thích được hiển thị ngay dưới từng câu.</p>
+  </section>
+</main>
+<footer>Được xây dựng để ôn tập theo nội dung tài liệu “Hiểu biết chung về các quân, binh chủng”.</footer>
+<script>
+const questions = [
+ {q:"Đội Việt Nam Tuyên truyền Giải phóng quân — tiền thân của Quân đội nhân dân Việt Nam — được thành lập ngày nào?",a:["22/12/1944","22/10/1963","25/03/1946","05/10/1959"],correct:0,why:"Tài liệu nêu ngày 22/12/1944 tại Nguyên Bình, Cao Bằng."},
+ {q:"Theo bài giảng, Quân đội nhân dân Việt Nam có ba chức năng cơ bản nào?",a:["Chiến đấu, nghiên cứu, ngoại giao","Chiến đấu, công tác, lao động sản xuất","Huấn luyện, quản lý, kinh doanh","Bảo vệ biên giới, cứu hộ, giáo dục"],correct:1,why:"Bài giảng xác định Quân đội là đội quân chiến đấu, đội quân công tác và đội quân lao động sản xuất."},
+ {q:"Nội dung nào phù hợp nhất với chức năng “đội quân công tác”?",a:["Chỉ thực hiện huấn luyện chiến đấu","Chỉ quản lý trang bị kỹ thuật","Tham gia dân vận, hỗ trợ nhân dân và cứu hộ cứu nạn","Chỉ nghiên cứu vũ khí"],correct:2,why:"Chức năng đội quân công tác bao gồm dân vận, hỗ trợ phát triển địa phương, phòng chống thiên tai và tìm kiếm cứu nạn."},
+ {q:"Quân chủng Hải quân giữ vai trò nòng cốt trong nhiệm vụ nào?",a:["Bảo vệ chủ quyền biển, đảo","Bảo đảm thông tin liên lạc trên bộ là nhiệm vụ duy nhất","Xây dựng công trình giao thông dân dụng là nhiệm vụ duy nhất","Quản lý toàn bộ hoạt động hàng không dân dụng"],correct:0,why:"Tài liệu nêu Hải quân là lực lượng nòng cốt bảo vệ chủ quyền, quyền chủ quyền và toàn vẹn lãnh thổ trên biển, đảo."},
+ {q:"Quân chủng Phòng không – Không quân được thành lập vào ngày nào theo bài giảng?",a:["19/04/1958","22/10/1963","29/06/1946","09/09/1945"],correct:1,why:"Bài giảng ghi ngày thành lập là 22/10/1963 trên cơ sở sáp nhập Bộ Tư lệnh Phòng không và Cục Không quân."},
+ {q:"Binh chủng Pháo binh – Tên lửa được mô tả là lực lượng nào của Lục quân?",a:["Lực lượng thông tin liên lạc","Lực lượng hậu cần duy nhất","Hỏa lực chính của Lục quân","Lực lượng chuyên trách quân y"],correct:2,why:"Theo tài liệu, Pháo binh – Tên lửa là binh chủng chiến đấu, hỏa lực chính của Lục quân."},
+ {q:"Ngày truyền thống của Binh chủng Tăng thiết giáp là ngày nào?",a:["05/10/1959","25/03/1946","19/04/1958","22/12/1944"],correct:0,why:"Bài giảng nêu ngày 05/10/1959 là ngày truyền thống của Binh chủng Tăng thiết giáp."},
+ {q:"Binh chủng Công binh có nhiệm vụ tiêu biểu nào được nêu trong tài liệu?",a:["Bảo vệ vùng trời là nhiệm vụ chính","Bảo đảm công trình trong tác chiến và xây dựng công trình quốc phòng","Chỉ thực hiện nhiệm vụ vận tải đường biển","Chỉ bảo đảm hoạt động ngoại giao"],correct:1,why:"Công binh bảo đảm công trình trong tác chiến, xây dựng công trình quốc phòng và hỗ trợ cơ động cho lực lượng."},
+ {q:"Nhiệm vụ cốt lõi của Binh chủng Thông tin liên lạc là gì?",a:["Bảo đảm thông tin liên lạc phục vụ chỉ huy quân đội","Bảo vệ chủ quyền biển, đảo bằng tàu mặt nước","Vận hành xe tăng làm lực lượng đột kích","Xây dựng trận địa pháo là nhiệm vụ duy nhất"],correct:0,why:"Tài liệu nêu nhiệm vụ chính là bảo đảm thông tin liên lạc cho chỉ huy quân đội trong mọi tình huống."},
+ {q:"“Hiệp đồng tác chiến” nhằm mục đích gì theo bài giảng?",a:["Tách rời hoạt động của các lực lượng","Phối hợp có tổ chức các hoạt động theo nhiệm vụ, địa điểm, thời gian và phương pháp để đạt mục đích chiến đấu","Chỉ phân chia trang bị giữa các đơn vị","Thay thế hoàn toàn công tác chỉ huy"],correct:1,why:"Hiệp đồng tác chiến giúp phối hợp chặt chẽ, có tổ chức các hoạt động của lực lượng để đạt mục đích chiến dịch hoặc trận chiến đấu."}
+];
+const quiz = document.getElementById('quiz');
+const answered = document.getElementById('answered');
+const bar = document.getElementById('bar');
+const result = document.getElementById('result');
+function render(){
+ quiz.innerHTML = questions.map((item,i)=>`
+  <section class="question" data-q="${i}">
+   <div class="qhead"><div class="num">${i+1}</div><div style="flex:1">
+    <div class="qtitle">${item.q}</div>
+    <div class="options">${item.a.map((choice,j)=>`
+      <label class="option" data-option="${j}">
+       <input type="radio" name="q${i}" value="${j}">
+       <span>${String.fromCharCode(65+j)}. ${choice}</span>
+      </label>`).join('')}
+    </div>
+    <div class="explain"></div>
+   </div></div>
+  </section>`).join('');
+ quiz.querySelectorAll('input').forEach(input=>input.addEventListener('change',updateProgress));
+ result.style.display='none';
+ updateProgress();
+}
+function updateProgress(){
+ const count=questions.filter((_,i)=>quiz.querySelector(`input[name="q${i}"]:checked`)).length;
+ answered.textContent=`Đã trả lời ${count}/10 câu`;
+ bar.style.width=`${count*10}%`;
+}
+document.getElementById('submit').addEventListener('click',()=>{
+ let score=0;
+ questions.forEach((item,i)=>{
+  const card=quiz.querySelector(`[data-q="${i}"]`);
+  const selected=card.querySelector(`input[name="q${i}"]:checked`);
+  card.classList.add('review');
+  card.querySelectorAll('.option').forEach((label,j)=>{
+   label.classList.remove('correct','wrong');
+   if(j===item.correct) label.classList.add('correct');
+   if(selected && Number(selected.value)===j && j!==item.correct) label.classList.add('wrong');
+  });
+  const explanation=card.querySelector('.explain');
+  explanation.textContent=(selected && Number(selected.value)===item.correct?'Đúng. ':'Đáp án đúng: '+String.fromCharCode(65+item.correct)+'. ')+item.why;
+  if(selected && Number(selected.value)===item.correct) score++;
+ });
+ document.getElementById('score').textContent=`${score}/10 điểm`;
+ document.getElementById('message').textContent=score===10?'Xuất sắc! Bạn đã nắm rất vững nội dung ôn tập.':score>=7?'Tốt lắm! Hãy xem lại các câu sai để củng cố kiến thức.':score>=5?'Bạn đã nắm được một phần nội dung. Hãy đọc lại bài và thử làm lại nhé.':'Hãy ôn lại các phần trong bài giảng rồi thử lại. Bạn có thể làm lại bất cứ lúc nào.';
+ result.style.display='block';
+ result.scrollIntoView({behavior:'smooth',block:'start'});
+});
+document.getElementById('reset').addEventListener('click',()=>{
+ render();
+ window.scrollTo({top:0,behavior:'smooth'});
+});
+render();
+</script>
+</body>
+</html>
